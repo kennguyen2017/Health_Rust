@@ -2,6 +2,7 @@ use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
 use axum::Json;
 use serde::Serialize;
+use utoipa::ToSchema;
 
 pub type AppResult<T> = Result<T, AppError>;
 
@@ -10,11 +11,13 @@ pub enum AppError {
 	Database(sqlx::Error),
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
-struct ErrorResponse {
-	code: &'static str,
-	message: String,
+pub struct ErrorResponse {
+	#[schema(example = "internal_server_error")]
+	pub code: &'static str,
+	#[schema(example = "database error: connection refused")]
+	pub message: String,
 }
 
 impl IntoResponse for AppError {
