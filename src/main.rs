@@ -8,6 +8,7 @@ mod models;
 mod repositories;
 mod routes;
 mod services;
+mod state;
 
 use std::net::SocketAddr;
 
@@ -16,6 +17,7 @@ use tracing::info;
 
 use crate::app::build_app;
 use crate::config::AppConfig;
+use crate::state::AppState;
 
 #[tokio::main]
 async fn main() {
@@ -24,6 +26,11 @@ async fn main() {
 
     let config = AppConfig::from_env();
     let address = SocketAddr::from((config.host, config.port));
+    let pool = config
+        .create_db_pool()
+        .await
+        .expect("failed to create postgres connection pool");
+    let state = AppState::new(pool);
 
     let listener = TcpListener::bind(address)
         .await
@@ -31,7 +38,7 @@ async fn main() {
 
     info!(%address, "health_rust_backend is starting");
 
-    axum::serve(listener, build_app())
+    axum::serve(listener, build_app(state))
         .await
         .expect("server exited unexpectedly");
 }
