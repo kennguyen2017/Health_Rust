@@ -1,0 +1,26 @@
+DROP INDEX IF EXISTS idx_columns_created_at;
+DROP INDEX IF EXISTS idx_user_action_logs_user_id_created_at;
+DROP INDEX IF EXISTS idx_challenges_user_id_challenge_time;
+DROP INDEX IF EXISTS idx_exercise_records_user_id_performed_at;
+DROP INDEX IF EXISTS idx_diaries_user_id_created_at;
+DROP INDEX IF EXISTS idx_meals_user_id_eaten_at;
+DROP INDEX IF EXISTS idx_year_charts_user_id_recorded_at;
+DROP INDEX IF EXISTS idx_month_charts_user_id_recorded_at;
+DROP INDEX IF EXISTS idx_week_charts_user_id_recorded_at;
+DROP INDEX IF EXISTS idx_day_charts_user_id_recorded_at;
+DROP INDEX IF EXISTS idx_body_records_user_id_recorded_at;
+
+DROP TABLE IF EXISTS user_action_logs;
+DROP TABLE IF EXISTS challenges;
+DROP TABLE IF EXISTS exercise_records;
+DROP TABLE IF EXISTS diaries;
+DROP TABLE IF EXISTS meals;
+DROP TABLE IF EXISTS year_charts;
+DROP TABLE IF EXISTS month_charts;
+DROP TABLE IF EXISTS week_charts;
+DROP TABLE IF EXISTS day_charts;
+DROP TABLE IF EXISTS body_records;
+DROP TABLE IF EXISTS settings;
+DROP TABLE IF EXISTS columns;
+DROP TABLE IF EXISTS courses;
+DROP TABLE IF EXISTS users;
