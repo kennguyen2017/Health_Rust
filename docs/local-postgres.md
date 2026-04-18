@@ -2,6 +2,8 @@
 
 This repository ships with a local PostgreSQL container and SQL migrations that can be applied without installing `sqlx-cli`.
 
+Docker Compose reads `POSTGRES_*` values from `.env` when present. The tracked `.env.example` contains the default local values.
+
 ## Prerequisites
 
 - Docker Desktop
@@ -10,13 +12,15 @@ This repository ships with a local PostgreSQL container and SQL migrations that 
 
 ## Start The Database
 
+Optional: copy `.env.example` to `.env` first if you want to override the local Postgres credentials or host port.
+
 From the backend repository root, run:
 
 ```powershell
 docker compose up -d db
 ```
 
-The container exposes PostgreSQL on `localhost:5433` with these credentials:
+By default the container exposes PostgreSQL on `localhost:5433` with these credentials:
 
 - user: `postgres`
 - password: `postgres`
