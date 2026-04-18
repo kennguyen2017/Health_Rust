@@ -1,6 +1,7 @@
 mod app;
 mod config;
 mod dto;
+mod docs;
 mod errors;
 mod handlers;
 mod middleware;
