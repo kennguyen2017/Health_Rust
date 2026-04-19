@@ -18,6 +18,25 @@ pub struct ColumnListResponse {
     pub pagination: ColumnPagination,
 }
 
+#[derive(Debug, Deserialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct CreateColumnRequest {
+    #[schema(example = 3)]
+    pub user_id: i64,
+    #[schema(example = "How to keep a health journal consistent")]
+    pub title: String,
+    #[schema(example = "A practical system for writing short, useful health notes every day.")]
+    pub content: String,
+    #[schema(example = "https://images.unsplash.com/photo-1490645935967-10de6ba17061")]
+    pub image_url: Option<String>,
+}
+
+#[derive(Debug, Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct CreateColumnResponse {
+    pub article: ColumnDetailArticle,
+}
+
 #[derive(Debug, Serialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct ColumnDetailResponse {

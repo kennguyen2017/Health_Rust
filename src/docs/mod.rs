@@ -6,11 +6,12 @@ use crate::dto::auth::{
 };
 use crate::dto::column::{
     ColumnArticle, ColumnDetailArticle, ColumnDetailResponse, ColumnListQuery, ColumnListResponse,
-    ColumnPagination, ColumnTab,
+    ColumnPagination, ColumnTab, CreateColumnRequest, CreateColumnResponse,
 };
 use crate::dto::my_record::{
-    DiaryEntry, DiaryListResponse, ExerciseItem, ExerciseListResponse, MyRecordQuery,
-    MyRecordResponse, RecordChartFilter, RecordHighlight,
+    CreateBodyRecordInput, CreateDiaryInput, CreateExerciseInput, CreateMyRecordRequest,
+    CreateMyRecordResponse, CreatedBodyRecord, DiaryEntry, DiaryListResponse, ExerciseItem,
+    ExerciseListResponse, MyRecordQuery, MyRecordResponse, RecordChartFilter, RecordHighlight,
 };
 use crate::dto::top::{ChartPoint, MealCard, TopAction, TopPageResponse, TopSummary};
 use crate::errors::ErrorResponse;
@@ -23,9 +24,11 @@ use crate::handlers::HealthResponse;
         crate::handlers::health_check,
         crate::handlers::get_top_page,
         crate::handlers::get_my_record,
+        crate::handlers::create_my_record,
         crate::handlers::get_my_record_exercises,
         crate::handlers::get_my_record_diaries,
         crate::handlers::get_columns,
+        crate::handlers::create_column,
         crate::handlers::get_column_detail,
         crate::handlers::start_google_register,
         crate::handlers::start_google_login,
@@ -41,6 +44,8 @@ use crate::handlers::HealthResponse;
             GoogleAuthCallbackResponse,
             ColumnListQuery,
             ColumnListResponse,
+            CreateColumnRequest,
+            CreateColumnResponse,
             ColumnDetailResponse,
             ColumnTab,
             ColumnArticle,
@@ -48,6 +53,12 @@ use crate::handlers::HealthResponse;
             ColumnPagination,
             MyRecordQuery,
             MyRecordResponse,
+            CreateMyRecordRequest,
+            CreateBodyRecordInput,
+            CreateExerciseInput,
+            CreateDiaryInput,
+            CreateMyRecordResponse,
+            CreatedBodyRecord,
             ExerciseListResponse,
             DiaryListResponse,
             RecordHighlight,

@@ -2,7 +2,7 @@ use sqlx::PgPool;
 
 use crate::dto::column::{
     ColumnArticle, ColumnDetailArticle, ColumnDetailResponse, ColumnListQuery, ColumnListResponse,
-    ColumnPagination, ColumnTab,
+    ColumnPagination, ColumnTab, CreateColumnRequest, CreateColumnResponse,
 };
 use crate::errors::{AppError, AppResult};
 use crate::repositories;
@@ -75,6 +75,32 @@ pub async fn get_column_detail(pool: &PgPool, column_id: i64) -> AppResult<Colum
     })
 }
 
+pub async fn create_column(pool: &PgPool, request: CreateColumnRequest) -> AppResult<CreateColumnResponse> {
+    validate_column_request(&request)?;
+
+    let record = repositories::column::create_column(
+        pool,
+        repositories::column::NewColumnRecord {
+            user_id: request.user_id,
+            title: request.title,
+            image_url: request.image_url,
+            content: request.content,
+        },
+    )
+    .await?;
+
+    Ok(CreateColumnResponse {
+        article: ColumnDetailArticle {
+            id: record.id,
+            title: record.title.clone(),
+            date: record.published_at,
+            image: record.image_url,
+            tags: infer_tags(&record.title, &record.content),
+            content: record.content,
+        },
+    })
+}
+
 fn infer_tags(title: &str, content: &str) -> Vec<String> {
     let haystack = format!("{} {}", title.to_lowercase(), content.to_lowercase());
     let mut tags = Vec::new();
@@ -105,4 +131,20 @@ fn infer_tags(title: &str, content: &str) -> Vec<String> {
 
     tags.truncate(2);
     tags
+}
+
+fn validate_column_request(request: &CreateColumnRequest) -> AppResult<()> {
+    if request.user_id <= 0 {
+        return Err(AppError::Validation("userId must be greater than 0".to_string()));
+    }
+
+    if request.title.trim().is_empty() {
+        return Err(AppError::Validation("title is required".to_string()));
+    }
+
+    if request.content.trim().is_empty() {
+        return Err(AppError::Validation("content is required".to_string()));
+    }
+
+    Ok(())
 }

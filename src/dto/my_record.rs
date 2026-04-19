@@ -38,6 +38,78 @@ pub struct DiaryListResponse {
     pub diary_entries: Vec<DiaryEntry>,
 }
 
+#[derive(Debug, Deserialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct CreateMyRecordRequest {
+    #[schema(example = 3)]
+    pub user_id: i64,
+    pub body_record: CreateBodyRecordInput,
+    pub exercise: Option<CreateExerciseInput>,
+    pub diary: Option<CreateDiaryInput>,
+}
+
+#[derive(Debug, Deserialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct CreateBodyRecordInput {
+    #[schema(example = "Body Record")]
+    pub name: String,
+    #[schema(example = "2026-04-19T07:30:00Z")]
+    pub recorded_at: String,
+    #[schema(example = 68.4)]
+    pub weight: f64,
+    #[schema(example = 18.7)]
+    pub body_fat_rate: f64,
+    #[schema(example = "https://images.unsplash.com/photo-1517836357463-d25dfeac3438")]
+    pub image_url: Option<String>,
+}
+
+#[derive(Debug, Deserialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct CreateExerciseInput {
+    #[schema(example = "Morning Walk")]
+    pub title: String,
+    #[schema(example = "20 min")]
+    pub exercise_type: String,
+    #[schema(example = 120)]
+    pub calories: i32,
+    #[schema(example = "2026-04-19T07:45:00Z")]
+    pub performed_at: String,
+    #[schema(example = "https://images.unsplash.com/photo-1517838277536-f5f99be501cd")]
+    pub image_url: Option<String>,
+}
+
+#[derive(Debug, Deserialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct CreateDiaryInput {
+    #[schema(example = "Morning reflection")]
+    pub title: String,
+    #[schema(example = "Walked for 20 minutes and prepared a lighter breakfast.")]
+    pub content: String,
+    #[schema(example = "https://images.unsplash.com/photo-1517842645767-c639042777db")]
+    pub image_url: Option<String>,
+}
+
+#[derive(Debug, Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct CreateMyRecordResponse {
+    pub body_record: CreatedBodyRecord,
+    pub exercise_item: Option<ExerciseItem>,
+    pub diary_entry: Option<DiaryEntry>,
+}
+
+#[derive(Debug, Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct CreatedBodyRecord {
+    #[schema(example = 101)]
+    pub id: i64,
+    #[schema(example = "2026.04.19")]
+    pub chart_date: String,
+    #[schema(example = 68.4)]
+    pub weight: f64,
+    #[schema(example = 18.7)]
+    pub body_fat_rate: f64,
+}
+
 #[derive(Debug, Serialize, Clone, ToSchema)]
 pub struct RecordHighlight {
     #[schema(example = "body")]

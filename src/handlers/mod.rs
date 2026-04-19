@@ -8,10 +8,12 @@ use crate::dto::auth::{
     GoogleAuthStartResponse,
 };
 use crate::dto::column::{
-    ColumnDetailResponse, ColumnListQuery, ColumnListResponse,
+    ColumnDetailResponse, ColumnListQuery, ColumnListResponse, CreateColumnRequest,
+    CreateColumnResponse,
 };
 use crate::dto::my_record::{
-    DiaryListResponse, ExerciseListResponse, MyRecordQuery, MyRecordResponse,
+    CreateMyRecordRequest, CreateMyRecordResponse, DiaryListResponse, ExerciseListResponse,
+    MyRecordQuery, MyRecordResponse,
 };
 use crate::dto::top::{TopPageQuery, TopPageResponse};
 use crate::errors::{AppError, ErrorResponse};
@@ -162,6 +164,44 @@ pub async fn get_column_detail(
     Path(id): Path<i64>,
 ) -> Result<Json<ColumnDetailResponse>, AppError> {
     let response = services::column::get_column_detail(&state.pool, id).await?;
+    Ok(Json(response))
+}
+
+#[utoipa::path(
+    post,
+    path = "/api/v1/columns",
+    tag = "Columns",
+    request_body = CreateColumnRequest,
+    responses(
+        (status = 200, description = "Column created", body = CreateColumnResponse),
+        (status = 400, description = "Validation error", body = ErrorResponse),
+        (status = 500, description = "Internal server error", body = ErrorResponse)
+    )
+)]
+pub async fn create_column(
+    State(state): State<AppState>,
+    Json(request): Json<CreateColumnRequest>,
+) -> Result<Json<CreateColumnResponse>, AppError> {
+    let response = services::column::create_column(&state.pool, request).await?;
+    Ok(Json(response))
+}
+
+#[utoipa::path(
+    post,
+    path = "/api/v1/my-record",
+    tag = "My Record",
+    request_body = CreateMyRecordRequest,
+    responses(
+        (status = 200, description = "My Record entry created", body = CreateMyRecordResponse),
+        (status = 400, description = "Validation error", body = ErrorResponse),
+        (status = 500, description = "Internal server error", body = ErrorResponse)
+    )
+)]
+pub async fn create_my_record(
+    State(state): State<AppState>,
+    Json(request): Json<CreateMyRecordRequest>,
+) -> Result<Json<CreateMyRecordResponse>, AppError> {
+    let response = services::my_record::create_my_record(&state.pool, request).await?;
     Ok(Json(response))
 }
 
