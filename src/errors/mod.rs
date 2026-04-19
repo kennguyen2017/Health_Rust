@@ -9,6 +9,7 @@ pub type AppResult<T> = Result<T, AppError>;
 #[derive(Debug)]
 pub enum AppError {
 	Database(sqlx::Error),
+	Validation(String),
 	NotFound(String),
 }
 
@@ -24,6 +25,14 @@ pub struct ErrorResponse {
 impl IntoResponse for AppError {
 	fn into_response(self) -> Response {
 		match self {
+			Self::Validation(message) => (
+				StatusCode::BAD_REQUEST,
+				Json(ErrorResponse {
+					code: "validation_error",
+					message,
+				}),
+			)
+				.into_response(),
 			Self::NotFound(message) => (
 				StatusCode::NOT_FOUND,
 				Json(ErrorResponse {

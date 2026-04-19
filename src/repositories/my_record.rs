@@ -1,10 +1,47 @@
 use std::collections::BTreeMap;
 
-use sqlx::{PgPool, Row};
+use sqlx::{PgPool, Postgres, Row, Transaction};
 
 use crate::dto::my_record::{DiaryEntry, ExerciseItem};
 use crate::dto::top::ChartPoint;
 use crate::errors::AppResult;
+
+#[derive(Debug, Clone)]
+pub struct NewBodyRecord {
+    pub user_id: i64,
+    pub name: String,
+    pub image_url: Option<String>,
+    pub recorded_at: String,
+    pub weight: f64,
+    pub body_fat_rate: f64,
+}
+
+#[derive(Debug, Clone)]
+pub struct CreatedBodyRecordRow {
+    pub id: i64,
+    pub chart_date: String,
+    pub weight: f64,
+    pub body_fat_rate: f64,
+}
+
+#[derive(Debug, Clone)]
+pub struct NewExerciseRecord {
+    pub user_id: i64,
+    pub title: String,
+    pub performed_at: String,
+    pub exercise_type: String,
+    pub calories: i32,
+    pub image_url: Option<String>,
+}
+
+#[derive(Debug, Clone)]
+pub struct NewDiaryRecord {
+    pub user_id: i64,
+    pub title: String,
+    pub content: String,
+    pub created_at: String,
+    pub image_url: Option<String>,
+}
 
 pub async fn fetch_chart_date(pool: &PgPool, user_id: i64) -> AppResult<String> {
     let row = sqlx::query(
@@ -137,4 +174,119 @@ pub async fn fetch_diary_entries(pool: &PgPool, user_id: i64) -> AppResult<Vec<D
             content: row.get("content"),
         })
         .collect())
+}
+
+pub async fn create_body_record(
+    tx: &mut Transaction<'_, Postgres>,
+    new_record: NewBodyRecord,
+) -> AppResult<CreatedBodyRecordRow> {
+    let row = sqlx::query(
+        r#"
+        INSERT INTO body_records (
+            user_id,
+            name,
+            image_url,
+            recorded_at,
+            weight,
+            body_fat_rate,
+            created_by,
+            updated_by
+        )
+        VALUES ($1, $2, $3, $4::timestamptz, $5, $6, $1, $1)
+        RETURNING
+            id,
+            TO_CHAR(recorded_at, 'YYYY.MM.DD') AS chart_date,
+            weight::FLOAT8 AS weight,
+            body_fat_rate::FLOAT8 AS body_fat_rate
+        "#,
+    )
+    .bind(new_record.user_id)
+    .bind(new_record.name)
+    .bind(new_record.image_url)
+    .bind(new_record.recorded_at)
+    .bind(new_record.weight)
+    .bind(new_record.body_fat_rate)
+    .fetch_one(&mut **tx)
+    .await?;
+
+    Ok(CreatedBodyRecordRow {
+        id: row.get("id"),
+        chart_date: row.get("chart_date"),
+        weight: row.get("weight"),
+        body_fat_rate: row.get("body_fat_rate"),
+    })
+}
+
+pub async fn create_exercise_record(
+    tx: &mut Transaction<'_, Postgres>,
+    new_record: NewExerciseRecord,
+) -> AppResult<ExerciseItem> {
+    let row = sqlx::query(
+        r#"
+        INSERT INTO exercise_records (
+            user_id,
+            title,
+            performed_at,
+            exercise_type,
+            calories,
+            image_url,
+            created_by,
+            updated_by
+        )
+        VALUES ($1, $2, $3::timestamptz, $4, $5, $6, $1, $1)
+        RETURNING title, calories, exercise_type
+        "#,
+    )
+    .bind(new_record.user_id)
+    .bind(new_record.title)
+    .bind(new_record.performed_at)
+    .bind(new_record.exercise_type)
+    .bind(new_record.calories)
+    .bind(new_record.image_url)
+    .fetch_one(&mut **tx)
+    .await?;
+
+    Ok(ExerciseItem {
+        name: row.get("title"),
+        kcal: row.get::<i16, _>("calories") as i32,
+        duration: row.get("exercise_type"),
+    })
+}
+
+pub async fn create_diary_record(
+    tx: &mut Transaction<'_, Postgres>,
+    new_record: NewDiaryRecord,
+) -> AppResult<DiaryEntry> {
+    let row = sqlx::query(
+        r#"
+        INSERT INTO diaries (
+            user_id,
+            title,
+            content,
+            image_url,
+            created_by,
+            updated_by,
+            created_at,
+            updated_at
+        )
+        VALUES ($1, $2, $3, $4, $1, $1, $5::timestamptz, $5::timestamptz)
+        RETURNING
+            TO_CHAR(created_at, 'YYYY.MM.DD') AS entry_date,
+            TO_CHAR(created_at, 'HH24:MI') AS entry_time,
+            content
+        "#,
+    )
+    .bind(new_record.user_id)
+    .bind(new_record.title)
+    .bind(new_record.content)
+    .bind(new_record.image_url)
+    .bind(new_record.created_at)
+    .fetch_one(&mut **tx)
+    .await?;
+
+    Ok(DiaryEntry {
+        date: row.get("entry_date"),
+        time: row.get("entry_time"),
+        content: row.get("content"),
+    })
 }
