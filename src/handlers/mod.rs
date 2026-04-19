@@ -4,6 +4,8 @@ use serde::Serialize;
 use utoipa::ToSchema;
 
 use crate::dto::auth::{
+    LoginMemberRequest, LoginMemberResponse,
+    RegisterMemberRequest, RegisterMemberResponse,
     GoogleAuthCallbackQuery, GoogleAuthCallbackResponse, GoogleAuthStartRequest,
     GoogleAuthStartResponse,
 };
@@ -202,6 +204,44 @@ pub async fn create_my_record(
     Json(request): Json<CreateMyRecordRequest>,
 ) -> Result<Json<CreateMyRecordResponse>, AppError> {
     let response = services::my_record::create_my_record(&state.pool, request).await?;
+    Ok(Json(response))
+}
+
+#[utoipa::path(
+    post,
+    path = "/api/v1/auth/register",
+    tag = "Auth",
+    request_body = RegisterMemberRequest,
+    responses(
+        (status = 200, description = "Member registration created", body = RegisterMemberResponse),
+        (status = 400, description = "Validation error", body = ErrorResponse),
+        (status = 500, description = "Internal server error", body = ErrorResponse)
+    )
+)]
+pub async fn register_member(
+    State(state): State<AppState>,
+    Json(request): Json<RegisterMemberRequest>,
+) -> Result<Json<RegisterMemberResponse>, AppError> {
+    let response = services::auth::register_member(&state.pool, request).await?;
+    Ok(Json(response))
+}
+
+#[utoipa::path(
+    post,
+    path = "/api/v1/auth/login",
+    tag = "Auth",
+    request_body = LoginMemberRequest,
+    responses(
+        (status = 200, description = "Member login authenticated", body = LoginMemberResponse),
+        (status = 400, description = "Validation error", body = ErrorResponse),
+        (status = 500, description = "Internal server error", body = ErrorResponse)
+    )
+)]
+pub async fn login_member(
+    State(state): State<AppState>,
+    Json(request): Json<LoginMemberRequest>,
+) -> Result<Json<LoginMemberResponse>, AppError> {
+    let response = services::auth::login_member(&state.pool, request).await?;
     Ok(Json(response))
 }
 
