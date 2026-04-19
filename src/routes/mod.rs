@@ -14,6 +14,7 @@ pub fn api_router() -> Router<AppState> {
         .route("/api/v1/my-record/diaries", get(handlers::get_my_record_diaries))
         .route("/api/v1/columns", get(handlers::get_columns).post(handlers::create_column))
         .route("/api/v1/columns/:id", get(handlers::get_column_detail))
+        .route("/api/v1/auth/register", post(handlers::register_member))
         .route("/api/v1/auth/google/register", post(handlers::start_google_register))
         .route("/api/v1/auth/google/login", post(handlers::start_google_login))
         .route("/api/v1/auth/google/callback", get(handlers::google_auth_callback))

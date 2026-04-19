@@ -3,6 +3,48 @@ use utoipa::{IntoParams, ToSchema};
 
 #[derive(Debug, Deserialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
+pub struct RegisterMemberRequest {
+    #[schema(example = "linh.nguyen@example.com")]
+    pub email: String,
+    #[schema(example = "Linh Nguyen")]
+    pub full_name: String,
+    #[schema(example = "StrongPass123")]
+    pub password: String,
+    #[schema(example = "https://images.unsplash.com/photo-1494790108377-be9c29b29330")]
+    pub avatar_url: Option<String>,
+}
+
+#[derive(Debug, Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct RegisteredMember {
+    #[schema(example = 3)]
+    pub id: i64,
+    #[schema(example = "linh.nguyen@example.com")]
+    pub email: String,
+    #[schema(example = "Linh Nguyen")]
+    pub full_name: String,
+    #[schema(example = false)]
+    pub is_verified: bool,
+    #[schema(example = "https://images.unsplash.com/photo-1494790108377-be9c29b29330")]
+    pub avatar_url: Option<String>,
+    #[schema(example = "2026-04-19T06:15:42.000Z")]
+    pub created_at: String,
+}
+
+#[derive(Debug, Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct RegisterMemberResponse {
+    #[schema(example = "registered")]
+    pub status: String,
+    pub member: RegisteredMember,
+    #[schema(example = true)]
+    pub settings_initialized: bool,
+    #[schema(example = "Member registration completed successfully.")]
+    pub message: String,
+}
+
+#[derive(Debug, Deserialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
 pub struct GoogleAuthStartRequest {
     #[schema(example = "http://localhost:5173/#/auth")]
     pub redirect_uri: Option<String>,
