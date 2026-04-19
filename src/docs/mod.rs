@@ -1,6 +1,7 @@
 use utoipa::OpenApi;
 
 use crate::dto::auth::{
+    LoginMemberRequest, LoginMemberResponse,
     RegisterMemberRequest, RegisterMemberResponse, RegisteredMember,
     GoogleAuthCallbackQuery, GoogleAuthCallbackResponse, GoogleAuthStartRequest,
     GoogleAuthStartResponse,
@@ -32,6 +33,7 @@ use crate::handlers::HealthResponse;
         crate::handlers::create_column,
         crate::handlers::get_column_detail,
         crate::handlers::register_member,
+        crate::handlers::login_member,
         crate::handlers::start_google_register,
         crate::handlers::start_google_login,
         crate::handlers::google_auth_callback
@@ -43,6 +45,8 @@ use crate::handlers::HealthResponse;
             RegisterMemberRequest,
             RegisteredMember,
             RegisterMemberResponse,
+            LoginMemberRequest,
+            LoginMemberResponse,
             GoogleAuthStartRequest,
             GoogleAuthStartResponse,
             GoogleAuthCallbackQuery,

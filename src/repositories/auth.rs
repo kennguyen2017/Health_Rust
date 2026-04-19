@@ -74,6 +74,33 @@ pub async fn create_member(pool: &PgPool, new_member: NewMemberRecord) -> AppRes
     Ok(member)
 }
 
+pub async fn login_member(
+    pool: &PgPool,
+    email: &str,
+    password_hash: &str,
+) -> AppResult<Option<RegisteredMemberRecord>> {
+    let row = sqlx::query(
+        r#"
+        UPDATE users
+        SET last_login = NOW(), login_attempts = 0, updated_at = NOW()
+        WHERE email = $1 AND password_hash = $2 AND deleted_at IS NULL
+        RETURNING
+            id,
+            email,
+            full_name,
+            is_verified,
+            avatar_url,
+            TO_CHAR(created_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') AS created_at
+        "#,
+    )
+    .bind(email)
+    .bind(password_hash)
+    .fetch_optional(pool)
+    .await?;
+
+    Ok(row.map(map_registered_member_row))
+}
+
 fn map_registered_member_row(row: PgRow) -> RegisteredMemberRecord {
     RegisteredMemberRecord {
         id: row.get("id"),

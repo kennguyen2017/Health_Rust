@@ -3,6 +3,7 @@ use sqlx::PgPool;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use crate::dto::auth::{
+    LoginMemberRequest, LoginMemberResponse,
     RegisterMemberRequest, RegisterMemberResponse, RegisteredMember,
     GoogleAuthCallbackQuery, GoogleAuthCallbackResponse, GoogleAuthStartRequest,
     GoogleAuthStartResponse,
@@ -52,6 +53,32 @@ pub async fn register_member(
         settings_initialized: true,
         message: "Member registration completed successfully.".to_string(),
     })
+}
+
+pub async fn login_member(
+    pool: &PgPool,
+    request: LoginMemberRequest,
+) -> AppResult<LoginMemberResponse> {
+    let email = normalize_email(&request.email)?;
+    validate_password(&request.password)?;
+
+    let member = repositories::auth::login_member(pool, &email, &hash_password(&request.password)).await?;
+
+    match member {
+        Some(member) => Ok(LoginMemberResponse {
+            status: "authenticated".to_string(),
+            member: RegisteredMember {
+                id: member.id,
+                email: member.email,
+                full_name: member.full_name,
+                is_verified: member.is_verified,
+                avatar_url: member.avatar_url,
+                created_at: member.created_at,
+            },
+            message: "Member login completed successfully.".to_string(),
+        }),
+        None => Err(AppError::Validation("Invalid email or password.".to_string())),
+    }
 }
 
 pub async fn start_google_register(

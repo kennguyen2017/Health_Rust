@@ -45,6 +45,25 @@ pub struct RegisterMemberResponse {
 
 #[derive(Debug, Deserialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
+pub struct LoginMemberRequest {
+    #[schema(example = "linh.nguyen@example.com")]
+    pub email: String,
+    #[schema(example = "StrongPass123")]
+    pub password: String,
+}
+
+#[derive(Debug, Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct LoginMemberResponse {
+    #[schema(example = "authenticated")]
+    pub status: String,
+    pub member: RegisteredMember,
+    #[schema(example = "Member login completed successfully.")]
+    pub message: String,
+}
+
+#[derive(Debug, Deserialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
 pub struct GoogleAuthStartRequest {
     #[schema(example = "http://localhost:5173/#/auth")]
     pub redirect_uri: Option<String>,
