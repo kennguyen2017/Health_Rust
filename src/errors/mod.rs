@@ -9,6 +9,7 @@ pub type AppResult<T> = Result<T, AppError>;
 #[derive(Debug)]
 pub enum AppError {
 	Database(sqlx::Error),
+	NotFound(String),
 }
 
 #[derive(Serialize, ToSchema)]
@@ -23,6 +24,14 @@ pub struct ErrorResponse {
 impl IntoResponse for AppError {
 	fn into_response(self) -> Response {
 		match self {
+			Self::NotFound(message) => (
+				StatusCode::NOT_FOUND,
+				Json(ErrorResponse {
+					code: "not_found",
+					message,
+				}),
+			)
+				.into_response(),
 			Self::Database(error) => (
 				StatusCode::INTERNAL_SERVER_ERROR,
 				Json(ErrorResponse {
@@ -37,6 +46,9 @@ impl IntoResponse for AppError {
 
 impl From<sqlx::Error> for AppError {
 	fn from(value: sqlx::Error) -> Self {
-		Self::Database(value)
+		match value {
+			sqlx::Error::RowNotFound => Self::NotFound("resource not found".to_string()),
+			other => Self::Database(other),
+		}
 	}
 }

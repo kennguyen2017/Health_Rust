@@ -1,6 +1,9 @@
 use sqlx::PgPool;
 
-use crate::dto::my_record::{MyRecordResponse, RecordChartFilter, RecordHighlight};
+use crate::dto::my_record::{
+    DiaryListResponse, ExerciseListResponse, MyRecordResponse, RecordChartFilter,
+    RecordHighlight,
+};
 use crate::errors::AppResult;
 use crate::repositories;
 
@@ -35,17 +38,32 @@ const RECORD_CHART_FILTERS: [RecordChartFilter; 4] = [
 pub async fn get_my_record(pool: &PgPool, user_id: i64) -> AppResult<MyRecordResponse> {
     let chart_date = repositories::my_record::fetch_chart_date(pool, user_id).await?;
     let chart_data = repositories::my_record::fetch_chart_data(pool, user_id).await?;
-    let exercise_date = repositories::my_record::fetch_exercise_date(pool, user_id).await?;
-    let exercise_items = repositories::my_record::fetch_exercise_items(pool, user_id).await?;
-    let diary_entries = repositories::my_record::fetch_diary_entries(pool, user_id).await?;
+    let exercises = get_my_record_exercises(pool, user_id).await?;
+    let diaries = get_my_record_diaries(pool, user_id).await?;
 
     Ok(MyRecordResponse {
         highlights: RECORD_HIGHLIGHTS.to_vec(),
         chart_date,
         chart_filters: RECORD_CHART_FILTERS.to_vec(),
         chart_data,
+        exercise_date: exercises.exercise_date,
+        exercise_items: exercises.exercise_items,
+        diary_entries: diaries.diary_entries,
+    })
+}
+
+pub async fn get_my_record_exercises(pool: &PgPool, user_id: i64) -> AppResult<ExerciseListResponse> {
+    let exercise_date = repositories::my_record::fetch_exercise_date(pool, user_id).await?;
+    let exercise_items = repositories::my_record::fetch_exercise_items(pool, user_id).await?;
+
+    Ok(ExerciseListResponse {
         exercise_date,
         exercise_items,
-        diary_entries,
     })
+}
+
+pub async fn get_my_record_diaries(pool: &PgPool, user_id: i64) -> AppResult<DiaryListResponse> {
+    let diary_entries = repositories::my_record::fetch_diary_entries(pool, user_id).await?;
+
+    Ok(DiaryListResponse { diary_entries })
 }
