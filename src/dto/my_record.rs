@@ -24,6 +24,20 @@ pub struct MyRecordResponse {
     pub diary_entries: Vec<DiaryEntry>,
 }
 
+#[derive(Debug, Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct ExerciseListResponse {
+    #[schema(example = "2026.05.21")]
+    pub exercise_date: String,
+    pub exercise_items: Vec<ExerciseItem>,
+}
+
+#[derive(Debug, Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct DiaryListResponse {
+    pub diary_entries: Vec<DiaryEntry>,
+}
+
 #[derive(Debug, Serialize, Clone, ToSchema)]
 pub struct RecordHighlight {
     #[schema(example = "body")]
